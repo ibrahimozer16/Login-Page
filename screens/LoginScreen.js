@@ -1,7 +1,5 @@
-import { KeyboardAvoidingView, StyleSheet, Text, View } from 'react-native'
+import { KeyboardAvoidingView, StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native'
 import React, {useState, useEffect} from 'react'
-import { TextInput } from 'react-native'
-import { TouchableOpacity } from 'react-native'
 import { auth } from '../firebase'
 import { useNavigation } from '@react-navigation/native'
 
@@ -10,6 +8,16 @@ export default function LoginScreen() {
     const [password, setPassword] = useState('')
 
     const navigation = useNavigation();
+
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('focus', () => {
+            setEmail('');
+            setPassword('');
+        });
+
+        return unsubscribe;
+    }, [navigation]);
+
     useEffect(() => {
         auth.onAuthStateChanged((user) => {
             if(user){
@@ -19,13 +27,7 @@ export default function LoginScreen() {
     },[])
 
     const handleSignUp = () => {
-        auth
-        .createUserWithEmailAndPassword(email, password)
-        .then((userCredentials) => {
-            const user = userCredentials.user;
-            console.log('Kullanıcı', user.email)
-        })
-        .catch(error => alert(error.message));
+            navigation.navigate('SignUp');
     }
 
     const handleLogin = () => {
@@ -34,6 +36,7 @@ export default function LoginScreen() {
         .then((userCredentials) => {
             const user = userCredentials.user;
             console.log('Kullanıcı Giriş Yaptı', user.email)
+            navigation.navigate('Home');
         })
         .catch(error => alert(error.message));
     }
